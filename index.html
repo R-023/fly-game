@@ -62,24 +62,26 @@
       opacity: 0.7;
     }
 
-    /* Grid */
+    /* Grid wrapper for centering */
+    .grid-wrapper {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      margin: 20px 0;
+    }
+
+    /* Grid container */
     .grid-container {
       display: grid;
       gap: 2px;
-      grid-template-columns: repeat(auto-fit, minmax(64px, 1fr));
-      justify-content: center;
       padding: 10px;
       background: #f1f3f5;
       border-radius: 10px;
-      max-width: 400px;
-      width: 100%;
     }
+
     .cell {
-      width: 100%;
-      height: 100%;
-      aspect-ratio: 1 / 1; /* чтобы был квадрат */
-      max-width: 64px;
-      max-height: 64px;
+      width: 64px;
+      height: 64px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -91,15 +93,16 @@
       cursor: pointer;
       user-select: none;
       transition: all 0.15s ease;
+      box-sizing: border-box;
     }
     .cell:hover {
       background: #dee2e6;
       transform: scale(1.04);
     }
-    .cell.start { background: #ffc107; } /* Start — yellow */
-    .cell.selected { background: #0dcaf0; } /* Player choice — blue */
-    .cell.correct { background: #198754; color: white; } /* Correct — green */
-    .cell.incorrect { background: #dc3545; color: white; } /* Wrong — red */
+    .cell.start { background: #ffc107; }
+    .cell.selected { background: #0dcaf0; }
+    .cell.correct { background: #198754; color: white; }
+    .cell.incorrect { background: #dc3545; color: white; }
 
     .log {
       background: #212529;
@@ -160,7 +163,9 @@
     <div class="log" id="log">Steps will appear here...</div>
 
     <label>Click on the cell where the fly ended:</label>
-    <div class="grid-container" id="grid"></div>
+    <div class="grid-wrapper">
+      <div class="grid-container" id="grid"></div>
+    </div>
 
     <div class="result-area">
       <div class="result" id="result"></div>
@@ -199,10 +204,9 @@
       gridSizeSel.appendChild(opt);
     }
 
-    // Render grid with start cell
     function renderGrid() {
       gridEl.innerHTML = '';
-      gridEl.style.gridTemplateColumns = `repeat(${n}, 1fr)`;
+      gridEl.style.gridTemplateColumns = `repeat(${n}, auto)`;
 
       for (let row = 0; row < n; row++) {
         for (let col = 0; col < n; col++) {
@@ -227,22 +231,18 @@
       }
     }
 
-    // Start a new round (same grid size)
     function startNewRound() {
-      // Reset UI
       logEl.innerHTML = '<i>Steps will appear here...</i>';
       resultEl.textContent = '';
       resultEl.className = 'result';
       newGameBtn.style.display = 'none';
       gameActive = false;
 
-      // Random start position
       startPos = {
         row: Math.floor(Math.random() * n),
         col: Math.floor(Math.random() * n)
       };
 
-      // Generate path
       let x = startPos.row;
       let y = startPos.col;
       steps = [];
@@ -263,11 +263,9 @@
 
       finalPos = { row: x, col: y };
       renderGrid();
-
       startInfoEl.textContent = `The fly starts at the yellow cell.`;
     }
 
-    // Initial game start (with size selection)
     startBtn.addEventListener('click', () => {
       n = parseInt(gridSizeSel.value);
       setupEl.style.display = 'none';
@@ -275,12 +273,10 @@
       startNewRound();
     });
 
-    // New Game button (after round ends)
     newGameBtn.addEventListener('click', () => {
       startNewRound();
     });
 
-    // Speech
     function speakStepsSequential(steps, index = 0) {
       if (index >= steps.length) {
         gameActive = true;
@@ -333,7 +329,6 @@
       }
     });
 
-    // Check answer
     function checkAnswer(guessRow, guessCol) {
       document.querySelectorAll('.cell').forEach(cell => {
         cell.style.pointerEvents = 'none';
